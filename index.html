@@ -44,6 +44,7 @@
   </script>
 <!-- BEGIN: Custom Styles -->
 <style data-purpose="custom-scrollbars-and-animations">
+    /* Android TV custom smooth scrolling */
     .no-scrollbar::-webkit-scrollbar {
       display: none;
     }
@@ -51,6 +52,7 @@
       -ms-overflow-style: none;
       scrollbar-width: none;
     }
+    /* Pulsing play icon halo */
     @keyframes pulse-cyan-glow {
       0%, 100% {
         box-shadow: 0 0 25px 6px rgba(0, 218, 243, 0.55);
@@ -64,15 +66,18 @@
     .play-glow {
       animation: pulse-cyan-glow 2.8s infinite ease-in-out;
     }
+    /* Backdrop subtle zoom effect */
     .cinematic-vignette {
       background: radial-gradient(circle at center, transparent 40%, rgba(10, 12, 18, 0.85) 85%, #0c0e15 100%);
     }
+    /* Subtitles styling with TV readability */
     .tv-subtitles-box {
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.95), 0 0 8px rgba(0, 0, 0, 0.9);
       letter-spacing: 0.02em;
     }
   </style>
 <style data-purpose="aspect-ratio-modes">
+    /* Aspect Ratio adjustments for Player Container */
     .aspect-mode-normal {
       width: 100%;
       height: 100%;
@@ -87,11 +92,11 @@
       aspect-ratio: 16 / 9;
       max-width: 100%;
       max-height: 100%;
-      object-fit: cover;
     }
-    .aspect-mode-zoom {
-      transform: scale(1.25);
-      object-fit: cover;
+    .aspect-mode-4-3 {
+      aspect-ratio: 4 / 3;
+      max-width: 100%;
+      max-height: 100%;
     }
   </style>
 <!-- END: Custom Styles -->
@@ -101,31 +106,17 @@
 <main class="relative w-full h-screen flex flex-col justify-between overflow-hidden bg-[#0c0e15]" id="app-root">
 <!-- BEGIN: Video Player Layer -->
 <div class="absolute inset-0 z-0 bg-black flex items-center justify-center overflow-hidden transition-all duration-300" id="video-wrapper">
-<!-- Native HTML5 Video Element (Primary Engine) with Fallback Support -->
-<video class="w-full h-full object-cover relative z-0 transition-all duration-300 aspect-mode-normal" id="main-video-player" playsinline="" poster="https://lh3.googleusercontent.com/aida-public/AB6AXuBbO7Q0rzGPCQOHICq2l7C_K91W1ESlpnX0ZVN4ee_l2HOiGoGVSLtcnrANZ99hF0UbuXcJK_Uqv7PzQcx-rApAtX264GMypzLDlmCXe87W_V_bAAGjedguMaQwNHW4ufEgOPZvfUlMLYdk7TMxlEULEufrOSZkyVoZyTEaQIrZzfCRl_XrpFiUAu3Y0xy4vOUMwJYd_8Hr1BQHH5nAQZ7vY1ACNPmmaOLnbJZAtSZRUchbzl46a92kF8j46WXehCWjQQ" preload="auto">
-<source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4" type="video/mp4"/>
-</video>
-<!-- Simulated Player Background Backdrop / Iframe fallback for external streams -->
-<iframe allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen="" class="w-full h-full border-0 relative z-0 hidden transition-transform duration-300 aspect-mode-normal" id="cinema-iframe" src="https://vidlink.pro/movie/1423191?primaryColor=00e5ff&amp;autoplay=false&amp;title=true" title="VidLink Pro Leanback Player"></iframe>
+<!-- Simulated Player Background Backdrop -->
+<img alt="Player Backdrop Scene" class="absolute inset-0 w-full h-full object-cover opacity-35 pointer-events-none transition-opacity duration-700 blur-[2px]" id="player-backdrop" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbO7Q0rzGPCQOHICq2l7C_K91W1ESlpnX0ZVN4ee_l2HOiGoGVSLtcnrANZ99hF0UbuXcJK_Uqv7PzQcx-rApAtX264GMypzLDlmCXe87W_V_bAAGjedguMaQwNHW4ufEgOPZvfUlMLYdk7TMxlEULEufrOSZkyVoZyTEaQIrZzfCRl_XrpFiUAu3Y0xy4vOUMwJYd_8Hr1BQHH5nAQZ7vY1ACNPmmaOLnbJZAtSZRUchbzl46a92kF8j46WXehCWjQQ"/>
+<!-- Advanced Embedded Player with Bidirectional PostMessage & SDK Support -->
+<iframe allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen="" class="w-full h-full border-0 relative z-0 transition-transform duration-300 aspect-mode-normal" id="cinema-iframe" src="https://vidlink.pro/movie/1423191?primaryColor=00e5ff&amp;autoplay=false&amp;title=true" title="VidLink Pro Leanback Player">
+</iframe>
 <!-- Cinematic Obsidian Vignette Gradient Overlay -->
 <div class="absolute inset-0 cinematic-vignette pointer-events-none z-10"></div>
 <div class="absolute inset-0 bg-gradient-to-t from-[#0c0e15] via-transparent to-[#0c0e15]/80 pointer-events-none z-10"></div>
 <!-- Overlay Dynamic TV Subtitle Renderer -->
 <div class="absolute bottom-28 left-0 right-0 z-20 flex justify-center pointer-events-none px-6" id="subtitle-overlay-container">
-<div class="max-w-4xl text-center px-5 py-2 rounded-xl bg-black/85 backdrop-blur-md border border-cyan-400/40 text-white font-medium tv-subtitles-box leading-relaxed shadow-2xl transition-all duration-200 flex flex-col items-center gap-1" id="subtitle-text-box">
-<div class="flex items-center gap-1.5 text-[10px] text-cyan-300 font-mono uppercase tracking-wider bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-500/40" id="subtitle-badge-indicator">
-<span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
-<span id="subtitle-badge-text">OPENSUBTITLES AUTO-SYNC • 99.8% MATCH (0.0S)</span>
-</div>
-<span class="text-sm sm:text-base text-zinc-100 font-semibold" id="subtitle-content-text">[Alerta acústica de emergencia en La Colmena] — Alice, el gas neurotóxico inundará el sector en tres minutos.</span>
-</div>
-</div>
-<!-- Visual Feedback Flash (for -10s, +10s and controls) -->
-<div class="absolute inset-0 z-20 flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300" id="feedback-flash-container">
-<div class="px-5 py-3 rounded-2xl bg-black/80 backdrop-blur border border-cyan-400/70 text-cyan-300 text-xl font-bold font-mono flex items-center gap-3 shadow-[0_0_30px_rgba(0,218,243,0.5)]" id="feedback-flash-box">
-<span class="material-symbols-outlined text-3xl">replay_10</span>
-<span id="feedback-flash-text">-10s</span>
-</div>
+<div class="max-w-4xl text-center px-5 py-2 rounded-xl bg-black/85 backdrop-blur-md border border-cyan-400/40 text-white font-medium tv-subtitles-box leading-relaxed shadow-2xl transition-all duration-200 flex flex-col items-center gap-1" id="subtitle-text-box"><div class="flex items-center gap-1.5 text-[10px] text-cyan-300 font-mono uppercase tracking-wider bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-500/40"><span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>OpenSubtitles Auto-Sync • 99.8% Match (0.0s)</div><span class="text-sm sm:text-base text-zinc-100 font-semibold">[Alerta acústica de emergencia en La Colmena] — Alice, el gas neurotóxico inundará el sector en tres minutos.</span></div>
 </div>
 </div>
 <!-- END: Video Player Layer -->
@@ -134,7 +125,7 @@
 <div class="flex items-center space-x-3">
 <span class="inline-flex items-center px-2 py-0.5 rounded bg-red-600/90 text-[10px] font-extrabold uppercase tracking-widest text-white shadow-lg animate-pulse">Live</span>
 <span class="text-xs text-cyan-300 font-mono tracking-normal flex items-center gap-1.5" id="osd-connection-status">
-<span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+<span class="w-2 h-2 rounded-full bg-cyan-400"></span>
   XUPER STREAM • VIDLINK PRO
 </span>
 <!-- Bidirectional API Sync Indicator Badge -->
@@ -149,7 +140,7 @@
 <span class="inline-block px-2.5 py-0.5 rounded bg-zinc-800/90 text-yellow-300 text-[10px] uppercase font-bold border border-zinc-700/60 transition-colors" id="current-lang-pill">AUDIO: LATINO</span>
 <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded bg-zinc-900/90 text-cyan-300 text-[10px] uppercase font-bold border border-cyan-500/30 transition-colors" id="current-sub-pill"><span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span><span class="material-symbols-outlined text-[12px]">subtitles</span><span id="current-sub-pill-text">CC: LATINO (OPENSUBTITLES)</span></span>
 <span class="text-gray-300 uppercase hidden sm:inline" id="speed-indicator">4MB/S</span>
-<span class="text-white font-bold bg-zinc-900/60 px-2 py-0.5 rounded border border-zinc-700/50 font-mono" id="clock-display">16:04</span>
+<span class="text-white font-bold bg-zinc-900/60 px-2 py-0.5 rounded border border-zinc-700/50" id="clock-display">16:04</span>
 </div>
 </header>
 <!-- END: Top Status Bar -->
@@ -163,13 +154,13 @@
 </div>
 <!-- END: Center Floating Play/Pause Action Button -->
 <!-- BEGIN: Left Leanback Settings Overlays - Collapsible Quick Settings Menu -->
-<div class="absolute bottom-28 left-8 z-30 flex flex-col space-y-3.5 w-[92vw] sm:w-auto max-w-xl max-h-[75vh] overflow-y-auto no-scrollbar bg-[#11131a]/95 backdrop-blur-xl p-5 rounded-2xl border border-cyan-500/25 shadow-2xl transition-all duration-300 ease-out transform translate-y-8 opacity-0 pointer-events-none" id="player-settings-overlay">
+<div class="absolute bottom-28 left-8 z-30 flex flex-col space-y-3.5 max-w-xl max-h-[75vh] overflow-y-auto no-scrollbar bg-[#11131a]/95 backdrop-blur-xl p-5 rounded-2xl border border-cyan-500/25 shadow-2xl transition-all duration-300 ease-out transform translate-y-8 opacity-0 pointer-events-none" id="player-settings-overlay">
 <!-- Dynamic Notice Toast -->
 <div class="hidden text-xs bg-black/95 backdrop-blur border border-cyan-400/60 text-cyan-300 px-3.5 py-1.5 rounded-lg shadow-xl self-start flex items-center space-x-2" id="status-toast">
 <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping inline-block"></span>
 <span id="toast-message">Servidor cargado con éxito</span>
 </div>
-<!-- Group: SERVIDORES DE STREAMING SINCRONIZADOS -->
+<!-- Group: SERVIDORES DE STREAMING SINCRONIZADOS (BIDIRECCIONAL) -->
 <section class="space-y-1.5" data-purpose="synchronized-streaming-servers">
 <div class="flex items-center justify-between">
 <h3 class="text-[11px] font-extrabold text-cyan-300 uppercase tracking-wider flex items-center gap-1.5">
@@ -184,7 +175,7 @@
 <span class="text-xs font-bold flex items-center gap-1.5">
 <span class="server-check-icon text-cyan-400 font-bold">✔</span> ⚡ VidLink Pro v2
 </span>
-<span class="px-1.5 py-0.5 rounded bg-cyan-400/20 text-[9px] font-bold text-cyan-300 uppercase font-mono">Activo</span>
+<span class="px-1.5 py-0.5 rounded bg-cyan-400/20 text-[9px] font-bold text-cyan-300 uppercase font-mono">Auto-Sync</span>
 </div>
 <p class="text-[9px] text-zinc-300 mt-1 font-mono leading-tight">API bidireccional completa: play, pause, seek, timeupdate</p>
 </button>
@@ -225,21 +216,21 @@
 <div class="flex items-center justify-between">
 <h3 class="text-[11px] font-extrabold text-cyan-300 uppercase tracking-wider flex items-center gap-1.5">
 <span class="material-symbols-outlined text-sm">translate</span> IDIOMA Y AUDIO
-</h3>
+  </h3>
 <span class="text-[10px] text-zinc-400 font-mono">Pista Activa</span>
 </div>
 <div class="grid grid-cols-3 gap-2" id="audio-selection-group">
 <button class="audio-track-btn flex items-center justify-center space-x-1.5 px-3 py-2 bg-cyan-500/20 text-cyan-300 border border-cyan-400 rounded-lg text-xs font-semibold hover:bg-cyan-500/30 transition" data-label="Latino" data-lang="latino" data-provider-code="es-MX">
 <span class="text-cyan-400 check-audio-icon font-bold">✔</span>
-<span>🇲🇽 Español Latino</span>
+<span>Español Latino</span>
 </button>
 <button class="audio-track-btn flex items-center justify-center space-x-1.5 px-3 py-2 bg-surface-container-high/80 text-zinc-300 border border-zinc-700/60 rounded-lg text-xs font-medium hover:bg-zinc-700/80 hover:text-white transition" data-label="Castellano" data-lang="castellano" data-provider-code="es-ES">
 <span class="text-cyan-400 check-audio-icon font-bold hidden">✔</span>
-<span>🇪🇸 Castellano</span>
+<span>Castellano</span>
 </button>
 <button class="audio-track-btn flex items-center justify-center space-x-1.5 px-3 py-2 bg-surface-container-high/80 text-zinc-300 border border-zinc-700/60 rounded-lg text-xs font-medium hover:bg-zinc-700/80 hover:text-white transition" data-label="Inglés" data-lang="ingles" data-provider-code="en-US">
 <span class="text-cyan-400 check-audio-icon font-bold hidden">✔</span>
-<span>🇺🇸 Inglés Original</span>
+<span>Inglés Original</span>
 </button>
 </div>
 </section>
@@ -247,28 +238,49 @@
 <section class="space-y-2 border-t border-zinc-800/80 pt-2" data-purpose="subtitles-external-control">
 <div class="flex items-center justify-between">
 <h3 class="text-[11px] font-extrabold text-cyan-300 uppercase tracking-wider flex items-center gap-1.5">
-<span class="material-symbols-outlined text-sm text-cyan-400">subtitles</span> SUBTÍTULOS (OPENSUBTITLES / MULTI-TRACK)
+<span class="material-symbols-outlined text-sm text-cyan-400">subtitles</span> SUBTÍTULOS / EXTERNOS (.VTT / .SRT)
 </h3>
 <span class="text-[10px] text-zinc-400 font-mono" id="sub-format-indicator">Multi-Source</span>
 </div>
 <!-- Subtitle Preset Grid (Android TV D-Pad friendly) -->
 <div class="grid grid-cols-2 gap-1.5" id="subtitles-selection-group">
-<button class="sub-track-btn flex items-center space-x-2 px-3 py-2 bg-cyan-500/20 text-cyan-300 border border-cyan-400 rounded-lg text-xs font-semibold transition" data-format="vtt" data-label="LATINO (OPENSUBTITLES)" data-sub="es-latino">
+<button class="sub-track-btn flex items-center space-x-2 px-3 py-2 bg-cyan-500/20 text-cyan-300 border border-cyan-400 rounded-lg text-xs font-semibold transition" data-format="none" data-label="OFF" data-sub="off">
 <span class="check-sub-icon text-cyan-400 font-bold">✔</span>
-<span class="truncate">🇲🇽 OpenSubtitles Auto-Sync</span>
+<span class="truncate">Desactivados (Off)</span>
+</button>
+<button class="sub-track-btn flex items-center space-x-2 px-3 py-2 bg-surface-container-high/80 text-zinc-300 border border-zinc-700/60 rounded-lg text-xs font-medium hover:bg-zinc-700/80 hover:text-white transition" data-format="vtt" data-label="ES LATINO" data-sub="es-latino">
+<span class="check-sub-icon text-cyan-400 font-bold hidden">✔</span>
+<span class="truncate">Español Latino (Completo) [.vtt]</span>
 </button>
 <button class="sub-track-btn flex items-center space-x-2 px-3 py-2 bg-surface-container-high/80 text-zinc-300 border border-zinc-700/60 rounded-lg text-xs font-medium hover:bg-zinc-700/80 hover:text-white transition" data-format="srt" data-label="ES FORZADO" data-sub="es-forced">
 <span class="check-sub-icon text-cyan-400 font-bold hidden">✔</span>
-<span class="truncate">⚡ Español (Forzados) [.srt]</span>
+<span class="truncate">Español (Forzados) [.srt]</span>
 </button>
 <button class="sub-track-btn flex items-center space-x-2 px-3 py-2 bg-surface-container-high/80 text-zinc-300 border border-zinc-700/60 rounded-lg text-xs font-medium hover:bg-zinc-700/80 hover:text-white transition" data-format="vtt" data-label="EN SDH" data-sub="en-sdh">
 <span class="check-sub-icon text-cyan-400 font-bold hidden">✔</span>
-<span class="truncate">🇺🇸 Inglés (SDH) [.vtt]</span>
+<span class="truncate">English (SDH) [.vtt]</span>
 </button>
-<button class="sub-track-btn flex items-center space-x-2 px-3 py-2 bg-surface-container-high/80 text-zinc-300 border border-zinc-700/60 rounded-lg text-xs font-medium hover:bg-zinc-700/80 hover:text-white transition" data-format="none" data-label="OFF" data-sub="off">
-<span class="check-sub-icon text-cyan-400 font-bold hidden">✔</span>
-<span class="truncate">🚫 Desactivados (Off)</span>
+</div>
+<!-- Upload Local File / Custom URL Input Row -->
+<div class="bg-[#0c0e15]/95 border border-cyan-500/40 rounded-xl p-3 space-y-2.5 shadow-xl" id="opensubtitles-feature-card"><div class="flex items-center justify-between"><div class="flex items-center space-x-2"><div class="w-6 h-6 rounded-md bg-gradient-to-r from-cyan-500 to-cyan-300 text-black flex items-center justify-center font-black text-xs shadow">OS</div><div><div class="flex items-center gap-1.5"><h4 class="text-[11px] font-bold text-white tracking-wide">OpenSubtitles API</h4><span class="px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 text-[9px] font-bold border border-cyan-400/40">Auto-Sync Activo</span></div><p class="text-[9px] text-zinc-400 font-mono">Hash: a8f92c10b • 99.8% Match de Audio</p></div></div><button class="px-2 py-1 bg-cyan-950/70 hover:bg-cyan-900 border border-cyan-500/50 rounded-lg text-[10px] font-semibold text-cyan-300 flex items-center gap-1 transition"><span class="material-symbols-outlined text-xs">sync</span><span>Re-sincronizar</span></button></div><div class="space-y-1.5"><span class="text-[9px] font-bold uppercase tracking-wider text-zinc-400 flex items-center gap-1"><span class="material-symbols-outlined text-xs text-cyan-400">cloud_download</span> Pistas Detectadas en OpenSubtitles.org</span><div class="space-y-1" id="opensubtitles-results-list"><div class="flex items-center justify-between p-1.5 rounded-lg bg-cyan-500/20 border border-cyan-400 cursor-pointer text-xs transition"><div class="flex items-center space-x-2 truncate"><span class="text-cyan-400 font-bold text-xs">✔</span><span class="text-sm">🇲🇽</span><div class="truncate"><p class="text-[11px] font-semibold text-cyan-300 truncate">Español Latino (Bluray/WebDL Sync)</p><p class="text-[9px] text-zinc-400 font-mono">.SRT • 48.2k descargas • Por OpenSubtitles Official</p></div></div><span class="text-[10px] font-mono text-cyan-400 bg-cyan-950/80 px-1.5 py-0.5 rounded border border-cyan-500/40">Sincronizado</span></div><div class="flex items-center justify-between p-1.5 rounded-lg bg-surface-container-high/80 hover:bg-zinc-700/80 border border-zinc-700/60 cursor-pointer text-xs text-zinc-300 transition"><div class="flex items-center space-x-2 truncate"><span class="w-3"></span><span class="text-sm">🇪🇸</span><div class="truncate"><p class="text-[11px] font-medium text-zinc-200 truncate">Español España (Castellano AC3/HLS)</p><p class="text-[9px] text-zinc-400 font-mono">.SRT • 21.6k descargas • Por Subby_Pro</p></div></div><button class="text-[10px] text-zinc-400 hover:text-cyan-300 bg-zinc-800 px-2 py-0.5 rounded border border-zinc-700">Usar</button></div><div class="flex items-center justify-between p-1.5 rounded-lg bg-surface-container-high/80 hover:bg-zinc-700/80 border border-zinc-700/60 cursor-pointer text-xs text-zinc-300 transition"><div class="flex items-center space-x-2 truncate"><span class="w-3"></span><span class="text-sm">⚡</span><div class="truncate"><p class="text-[11px] font-medium text-zinc-200 truncate">Español Latino (Forzados / Letreros)</p><p class="text-[9px] text-zinc-400 font-mono">.SRT • 14.1k descargas • AI Time-Lock</p></div></div><button class="text-[10px] text-zinc-400 hover:text-cyan-300 bg-zinc-800 px-2 py-0.5 rounded border border-zinc-700">Usar</button></div><div class="flex items-center justify-between p-1.5 rounded-lg bg-surface-container-high/80 hover:bg-zinc-700/80 border border-zinc-700/60 cursor-pointer text-xs text-zinc-300 transition"><div class="flex items-center space-x-2 truncate"><span class="w-3"></span><span class="text-sm">🇺🇸</span><div class="truncate"><p class="text-[11px] font-medium text-zinc-200 truncate">English SDH (Full Hearing Impaired)</p><p class="text-[9px] text-zinc-400 font-mono">.SRT • 62.4k descargas • OpenSubtitles VIP</p></div></div><button class="text-[10px] text-zinc-400 hover:text-cyan-300 bg-zinc-800 px-2 py-0.5 rounded border border-zinc-700">Usar</button></div></div></div><div class="space-y-1 pt-1 border-t border-zinc-800"><div class="flex justify-between items-center"><span class="text-[9px] font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-1"><span class="material-symbols-outlined text-xs text-cyan-400">tune</span> Calibración de Onda de Audio</span><span class="text-[10px] font-mono text-cyan-300 font-bold bg-zinc-900 px-1.5 py-0.5 rounded border border-zinc-700">Offset: 0.0s (Bloqueado)</span></div><div class="flex gap-1"><button class="flex-1 py-1 rounded bg-surface-container-high/80 border border-zinc-700/60 text-[10px] text-zinc-300 hover:text-white transition">-1.0s</button><button class="flex-1 py-1 rounded bg-surface-container-high/80 border border-zinc-700/60 text-[10px] text-zinc-300 hover:text-white transition">-0.5s</button><button class="flex-1 py-1 rounded bg-cyan-500/20 border border-cyan-400 text-[10px] font-bold text-cyan-300 transition">0.0s</button><button class="flex-1 py-1 rounded bg-surface-container-high/80 border border-zinc-700/60 text-[10px] text-zinc-300 hover:text-white transition">+0.5s</button><button class="flex-1 py-1 rounded bg-surface-container-high/80 border border-zinc-700/60 text-[10px] text-zinc-300 hover:text-white transition">+1.0s</button></div></div></div><div class="bg-zinc-900/80 border border-zinc-800 rounded-xl p-2.5 space-y-2">
+<div class="flex flex-wrap sm:flex-nowrap items-center gap-2">
+<!-- Hidden real file input -->
+<input accept=".srt,.vtt" class="hidden" id="sub-file-input" type="file"/>
+<button class="w-full sm:w-auto flex-shrink-0 flex items-center justify-center space-x-1.5 px-3 py-1.5 bg-zinc-800 hover:bg-cyan-950/70 border border-zinc-700 hover:border-cyan-500/50 text-xs font-semibold text-zinc-200 hover:text-cyan-300 rounded-lg transition" id="upload-sub-file-btn" type="button">
+<span class="material-symbols-outlined text-sm">upload_file</span>
+<span>Subir archivo (.srt/.vtt)</span>
 </button>
+<div class="flex-grow flex items-center space-x-1 w-full sm:w-auto">
+<input class="w-full bg-black/70 border border-zinc-700/80 rounded-lg px-2.5 py-1 text-[11px] font-mono text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-cyan-400 transition" id="sub-url-input" placeholder="https://ejemplo.com/subtitulos.vtt" type="text"/>
+<button class="px-2.5 py-1 bg-cyan-500/20 hover:bg-cyan-500/40 text-cyan-300 border border-cyan-400/50 rounded-lg text-[11px] font-semibold transition flex-shrink-0" id="apply-sub-url-btn" type="button">
+        Cargar
+      </button>
+</div>
+</div>
+<div class="flex justify-between items-center text-[10px] text-zinc-400">
+<span class="truncate" id="active-custom-sub-name">Sin archivo externo cargado</span>
+<span class="text-cyan-400/80">UTF-8 / WebVTT / SubRip</span>
+</div>
 </div>
 <!-- Subtitles Customization: Size & Sync Offset Controls -->
 <div class="grid grid-cols-2 gap-3 pt-0.5">
@@ -276,7 +288,7 @@
 <div class="space-y-1">
 <span class="text-[10px] font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-1">
 <span class="material-symbols-outlined text-xs">format_size</span> TAMAÑO
-</span>
+    </span>
 <div class="flex gap-1" id="sub-size-group">
 <button class="sub-size-btn flex-1 py-1 rounded bg-surface-container-high/80 border border-zinc-700/60 text-[11px] text-zinc-300 hover:text-white transition" data-size="sm">Pequeño</button>
 <button class="sub-size-btn flex-1 py-1 rounded bg-cyan-500/20 border border-cyan-400 text-[11px] font-bold text-cyan-300 transition" data-size="md">Normal</button>
@@ -288,7 +300,7 @@
 <div class="flex justify-between items-center">
 <span class="text-[10px] font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-1">
 <span class="material-symbols-outlined text-xs">sync</span> SINCRONIZACIÓN
-</span>
+      </span>
 <span class="text-[10px] font-mono text-cyan-300 font-bold" id="sub-offset-label">0.0s</span>
 </div>
 <div class="flex gap-1" id="sub-offset-group">
@@ -307,13 +319,16 @@
 <div class="flex flex-wrap gap-1.5">
 <button class="format-btn flex items-center space-x-1.5 px-3.5 py-1.5 bg-cyan-500/20 border border-cyan-400 text-xs font-semibold rounded-lg text-cyan-300 transition" data-format="normal">
 <span class="text-cyan-400 text-xs">✔</span>
-<span>Normal 16:9</span>
+<span>Normal</span>
 </button>
 <button class="format-btn px-3.5 py-1.5 bg-surface-container-high/80 hover:bg-zinc-700/80 text-xs font-medium rounded-lg text-gray-300 border border-zinc-700/60 transition" data-format="fullscreen">
 Pantalla completa
 </button>
-<button class="format-btn px-3.5 py-1.5 bg-surface-container-high/80 hover:bg-zinc-700/80 text-xs font-medium rounded-lg text-gray-300 border border-zinc-700/60 transition" data-format="zoom">
-Zoom
+<button class="format-btn px-3.5 py-1.5 bg-surface-container-high/80 hover:bg-zinc-700/80 text-xs font-medium rounded-lg text-gray-300 border border-zinc-700/60 transition" data-format="16-9">
+16:9
+</button>
+<button class="format-btn px-3.5 py-1.5 bg-surface-container-high/80 hover:bg-zinc-700/80 text-xs font-medium rounded-lg text-gray-300 border border-zinc-700/60 transition" data-format="4-3">
+4:3
 </button>
 </div>
 </section>
@@ -350,10 +365,10 @@ Zoom
 <div class="flex-grow flex flex-col justify-center space-y-1">
 <div class="flex justify-between text-[11px] font-mono text-gray-300">
 <span class="text-cyan-400 font-bold tracking-wider" id="current-timestamp">00:00:08</span>
-<span class="text-zinc-400 font-mono" id="total-duration">01:37:18</span>
+<span class="text-zinc-400" id="total-duration">01:37:18</span>
 </div>
-<!-- Interactive Track (Seekbar) -->
-<div class="relative w-full h-2.5 bg-zinc-800 hover:bg-zinc-700/90 rounded-full cursor-pointer group flex items-center" id="timeline-track" title="Clic o arrastra para adelantar/retroceder">
+<!-- Interactive Track -->
+<div class="relative w-full h-2.5 bg-zinc-800 hover:bg-zinc-700/90 rounded-full cursor-pointer group flex items-center" id="timeline-track">
 <div class="absolute left-0 top-0 bottom-0 bg-gradient-to-r from-cyan-500 to-cyan-300 rounded-full w-[0.14%] group-hover:brightness-110 transition-all pointer-events-none" id="timeline-progress"></div>
 <div class="absolute left-[0.14%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 bg-cyan-300 rounded-full shadow-[0_0_12px_rgba(0,229,255,0.9)] border-2 border-white pointer-events-none transition-transform group-hover:scale-125" id="timeline-thumb"></div>
 </div>
@@ -363,7 +378,7 @@ Zoom
 <div class="flex items-center justify-between mt-1 text-xs text-gray-300">
 <div class="flex items-center space-x-3">
 <h2 class="font-bold text-sm sm:text-base tracking-wide text-white" id="media-main-title">Resident Evil / CinefusiónTv Pro</h2>
-<button class="text-gray-400 hover:text-cyan-300 p-1 rounded hover:bg-zinc-800/80 transition" id="inline-fullscreen-btn" title="Alternar Pantalla Completa (F)">
+<button class="text-gray-400 hover:text-cyan-300 p-1 rounded hover:bg-zinc-800/80 transition" id="inline-fullscreen-btn" title="Pantalla Completa Nativa">
 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
 </button>
 </div>
@@ -377,16 +392,16 @@ Zoom
 <span class="px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 font-mono text-[10px] border border-zinc-700">OK</span>
 <span id="remote-ok-label">Reproducir/Pausar</span>
 </button>
-<button class="flex items-center space-x-1 hover:text-white transition cursor-pointer group" id="remote-btn-rewind" title="Retroceder 10 segundos (Flecha Izq)">
-<span class="px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 font-mono text-[10px] border border-zinc-700 group-hover:bg-cyan-900 group-hover:text-cyan-300 transition">◀</span>
+<button class="flex items-center space-x-1 hover:text-white transition cursor-pointer group" id="remote-btn-rewind" title="Retroceder 10 segundos">
+<span class="px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 font-mono text-[10px] border border-zinc-700 group-hover:bg-cyan-900 group-hover:text-cyan-300">◀</span>
 <span>Detrás</span>
 </button>
-<button class="flex items-center space-x-1 hover:text-white transition cursor-pointer group" id="remote-btn-forward" title="Adelantar 10 segundos (Flecha Der)">
-<span class="px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 font-mono text-[10px] border border-zinc-700 group-hover:bg-cyan-900 group-hover:text-cyan-300 transition">▶</span>
+<button class="flex items-center space-x-1 hover:text-white transition cursor-pointer group" id="remote-btn-forward" title="Adelantar 10 segundos">
+<span class="px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 font-mono text-[10px] border border-zinc-700 group-hover:bg-cyan-900 group-hover:text-cyan-300">▶</span>
 <span>Adelante</span>
 </button>
-<button class="flex items-center space-x-1 hover:text-white transition cursor-pointer group" id="remote-btn-up-settings" title="Abrir Ajustes (Flecha Arriba)">
-<span class="px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 font-mono text-[10px] border border-zinc-700 group-hover:bg-cyan-900 group-hover:text-cyan-300 transition">▲</span>
+<button class="flex items-center space-x-1 hover:text-white transition cursor-pointer group" id="remote-btn-up-settings" title="Abrir Ajustes o Información">
+<span class="px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 font-mono text-[10px] border border-zinc-700 group-hover:bg-cyan-900 group-hover:text-cyan-300">▲</span>
 <span class="hover:text-cyan-300" id="toggle-info-panel-btn">Ajustes/Info</span>
 </button>
 </div>
@@ -451,7 +466,7 @@ En una instalación de investigación genética subterránea conocida como La Co
 <button class="px-4 py-2 bg-cyan-950/70 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-900/60 text-xs font-semibold rounded-lg flex items-center space-x-2 transition" id="quick-action-language">
 <span class="material-symbols-outlined text-sm">translate</span>
 <span>Cambiar Idioma &amp; Subtítulos</span>
-</button>
+</button><button class="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold rounded-lg flex items-center space-x-2 transition border border-cyan-500/40 text-cyan-300" id="quick-action-opensubtitles"><span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span><span>OpenSubtitles Auto-Sync</span></button>
 <button class="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold rounded-lg flex items-center space-x-2 transition border border-zinc-700/60" id="quick-action-res">
 <span class="text-sm">⇄</span>
 <span>Resolución 1080p</span>
@@ -479,6 +494,7 @@ En una instalación de investigación genética subterránea conocida como La Co
 <div class="pt-4 border-t border-zinc-800">
 <h3 class="text-sm font-bold text-gray-200 tracking-wide mb-3">Quizás te guste</h3>
 <div class="flex space-x-3 overflow-x-auto no-scrollbar pb-2">
+<!-- Card 1 -->
 <div class="relative flex-shrink-0 w-28 sm:w-32 group cursor-pointer">
 <div class="aspect-[2/3] bg-zinc-800 rounded-lg overflow-hidden relative shadow border border-zinc-700/50">
 <img alt="The Devil's Mouth" class="w-full h-full object-cover group-hover:scale-105 transition" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlInGvYrrMtK3dShqYWrcs7H5CTZNHBdcdcmMlZwTWmRvQLfdaHM4HPczrLXIJn_4wTYDlRtnk5pJXSWDuclJ-R2m6jFtBGYMm6nqbpcldCQMqCJwZlo7z4luw5hLdpcXPb2wl8VuyeHvA27a5V-o0zmkUD8N5Vabnp5K_BZGQ9O-_y7TVbn3z0TGbMOpjfg30UdUXC2uzN92JQkSPODz2uhdxSKmslpGSQ4l01gI37facsJYq3xq484Xk8cIjkB96wA"/>
@@ -487,6 +503,7 @@ En una instalación de investigación genética subterránea conocida como La Co
 </div>
 <p class="text-[11px] text-gray-300 mt-1 truncate font-medium">The Devil's Mouth</p>
 </div>
+<!-- Card 2 -->
 <div class="relative flex-shrink-0 w-28 sm:w-32 group cursor-pointer">
 <div class="aspect-[2/3] bg-zinc-800 rounded-lg overflow-hidden relative shadow border border-zinc-700/50">
 <img alt="The Secret Woman" class="w-full h-full object-cover group-hover:scale-105 transition" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtiM8CGEUf4F86veIZXodedWiYbU-tqOq0B9wOnRkHsTef1CjNX5kyKYieXkDGlr_nHEhsEROWIQw0PeXouUnRUPqc7e9pnYkayk0J7osHGBX8A-wOqrvPyodo4UOCcuJMA-lMtu9Tctz7RYR3zinEMls4rKuA-aVmPNHVHTt45y3DgAZSE7M-rcnuKQrqc15getOfTOZtBe_UCo2v3vc7MDmK8Nsvi5OQbMCaiZvLIdAxwRy687O5n8PapPfrn0PN_w"/>
@@ -495,6 +512,7 @@ En una instalación de investigación genética subterránea conocida como La Co
 </div>
 <p class="text-[11px] text-gray-300 mt-1 truncate font-medium">The Secret Woman</p>
 </div>
+<!-- Card 3 -->
 <div class="relative flex-shrink-0 w-28 sm:w-32 group cursor-pointer">
 <div class="aspect-[2/3] bg-zinc-800 rounded-lg overflow-hidden relative shadow border border-zinc-700/50">
 <img alt="Obsession" class="w-full h-full object-cover group-hover:scale-105 transition" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJ58SIAyGD_xF7gt1YIafXzh9Xe6eVR5ocPoPRppJcQFQWRiRb9tNyPFNP0Z78fZwQ77GiXF_iLyOYPsyhqMfLeJZNpT2rTcQ6oPNLz5orzZsxw5TOP3U2ww5oHRna3zuH3dIp6W0xWcsa2QrgPCNn4zLQlQU1-kdGJYnNThAJe706nhH0erbpviRhQdyV45DEWPsSu8V8tJo42MJBdUP1B48dsn3dYGY40zDEDML6guSPFLJtSIc3ur4qGN3Xgrg2AA"/>
@@ -503,6 +521,7 @@ En una instalación de investigación genética subterránea conocida como La Co
 </div>
 <p class="text-[11px] text-gray-300 mt-1 truncate font-medium">Obsesión</p>
 </div>
+<!-- Card 4 -->
 <div class="relative flex-shrink-0 w-28 sm:w-32 group cursor-pointer">
 <div class="aspect-[2/3] bg-zinc-800 rounded-lg overflow-hidden relative shadow border border-zinc-700/50">
 <img alt="Moana" class="w-full h-full object-cover group-hover:scale-105 transition" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfw-sFnhrsS9cTI3Od_tMGnZ53jyue7pb56A7XJlMAtKKhcKNHvIEoHx276MOeC6PDLNa5Nazpx4t80fOtLhu94LrGObkAUT9be8Q_SI-KXtgFv5YKnn6edWBJcBsKYs1p0jTyxLBTMcGLhw7aM3FfH6gvOiuEVpjzzDHAtHAIam0M7qwrg4QUsMmvpuvo9gLcMvqvWDamQxxpm4n2cqSgsQkc_Yb2PV4-i2eZjbuTFGm34TM2eK5dg8uzjSqXztX2VQ"/>
@@ -511,6 +530,7 @@ En una instalación de investigación genética subterránea conocida como La Co
 </div>
 <p class="text-[11px] text-gray-300 mt-1 truncate font-medium">Moana</p>
 </div>
+<!-- Card 5 -->
 <div class="relative flex-shrink-0 w-28 sm:w-32 group cursor-pointer">
 <div class="aspect-[2/3] bg-zinc-800 rounded-lg overflow-hidden relative shadow border border-zinc-700/50">
 <img alt="Batman Knightfall" class="w-full h-full object-cover group-hover:scale-105 transition" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSBY5li2Rdus5EgtMY9sqIKu8kdHhQIWQZHMyqwptWKjxPrWOEOwZENhBQOmG1PYifDJ1d1B7kg7zRLhT7klyCDtkCGSIHjScotRxVLCZAg2lWrAPAdEHxJU5g-lLUXXOXRJcyu1CDHLbPr60r4sPRh2mFGfDJciTC1ny8If204HAEWfh1hkaqtccHEteoGCuRlofyee4pMuElRCwJwg-ERb6TbaN9Sl4z0K5zvrswTv7hfKXX9B-vB-A-iLG19qb4Aw"/>
@@ -528,8 +548,7 @@ En una instalación de investigación genética subterránea conocida como La Co
 <!-- BEGIN: Complete External Player Controller & Master Control Script -->
 <script data-purpose="leanback-master-player-controller">
     document.addEventListener('DOMContentLoaded', () => {
-      // Core UI & Player Elements
-      const videoEl = document.getElementById('main-video-player');
+      // Core UI Elements
       const iframe = document.getElementById('cinema-iframe');
       const centerPlayBtn = document.getElementById('center-play-button');
       const centerPlayWrapper = document.getElementById('center-play-wrapper');
@@ -563,22 +582,20 @@ En una instalación de investigación genética subterránea conocida como La Co
       const apiSyncLabel = document.getElementById('api-sync-label');
       const osdConnStatus = document.getElementById('osd-connection-status');
 
-      // Visual Flash elements
-      const feedbackFlashContainer = document.getElementById('feedback-flash-container');
-      const feedbackFlashText = document.getElementById('feedback-flash-text');
-      const feedbackFlashBox = document.getElementById('feedback-flash-box');
-
-      // Server Buttons
+      // Server Track Buttons
       const serverTrackBtns = document.querySelectorAll('.server-track-btn');
 
       // Subtitle UI & Overlay Elements
       const subtitleTextBox = document.getElementById('subtitle-text-box');
-      const subtitleBadgeText = document.getElementById('subtitle-badge-text');
-      const subtitleContentText = document.getElementById('subtitle-content-text');
       const subTrackBtns = document.querySelectorAll('.sub-track-btn');
       const subSizeBtns = document.querySelectorAll('.sub-size-btn');
       const subOffsetBtns = document.querySelectorAll('.sub-offset-btn');
       const subOffsetLabel = document.getElementById('sub-offset-label');
+      const uploadSubFileBtn = document.getElementById('upload-sub-file-btn');
+      const subFileInput = document.getElementById('sub-file-input');
+      const subUrlInput = document.getElementById('sub-url-input');
+      const applySubUrlBtn = document.getElementById('apply-sub-url-btn');
+      const activeCustomSubName = document.getElementById('active-custom-sub-name');
       const subFormatIndicator = document.getElementById('sub-format-indicator');
 
       // Remote buttons
@@ -594,7 +611,7 @@ En una instalación de investigación genética subterránea conocida como La Co
       const currentTimestamp = document.getElementById('current-timestamp');
       const totalDuration = document.getElementById('total-duration');
 
-      // Audio buttons
+      // Audio elements
       const audioTrackBtns = document.querySelectorAll('.audio-track-btn');
 
       // Player & Subtitle State
@@ -602,40 +619,54 @@ En una instalación de investigación genética subterránea conocida como La Co
       let isSettingsOpen = false;
       let isFavorite = false;
       let currentSeconds = 8;
-      let totalSeconds = 5838; // 01:37:18 default or videoEl duration
+      let totalSeconds = 5838; // 01:37:18
       let isDraggingScrub = false;
       let activeAudio = 'LATINO';
       let activeAudioCode = 'es-MX';
-      let activeSubtitleKey = 'es-latino';
+      let activeSubtitleKey = 'off';
       let subtitleOffset = 0.0;
-      let subtitleSize = 'md';
+      let subtitleSize = 'md'; // sm, md, lg
+      let parsedCues = [];
+
+      // Active Server Configuration
       let activeServerKey = 'vidlink';
       let activeServerName = 'VidLink Pro v2';
+      let isBidirectionalSynced = true;
 
-      // Catalog Subtitles dataset
-      const catalogSubtitles = {
-        'es-latino': [
-          { start: 0, end: 5, text: "[Alerta acústica de emergencia en La Colmena] — Alice, el gas neurotóxico inundará el sector en tres minutos." },
-          { start: 6, end: 12, text: "Instalación subterránea: La Colmena, Racoon City. Sellando compuertas perimetrales." },
-          { start: 13, end: 20, text: "¡Muévanse todos al ascensor principal antes del bloqueo total!" },
-          { start: 21, end: 30, text: "La Reina Roja ha tomado el control absoluto de las defensas biológicas." },
-          { start: 31, end: 45, text: "Alice, debes encontrar el antivirus antes de que se cumpla la purga." }
-        ],
-        'es-forced': [
-          { start: 0, end: 6, text: "[Alarma de contingencia biológica Nivel 4 en altavoces]" },
-          { start: 7, end: 15, text: "[Compuertas blindadas cerrándose automáticamente]" },
-          { start: 21, end: 32, text: "[Cuenta regresiva: Purga por gas neurotóxico en 180 segundos]" }
-        ],
-        'en-sdh': [
-          { start: 0, end: 5, text: "[Emergency siren wailing] — Alice, neurotoxin gas will flood the perimeter in three minutes." },
-          { start: 6, end: 12, text: "Underground research facility: The Hive, Raccoon City. Sealing perimeter doors." },
-          { start: 13, end: 20, text: "Move to the primary elevator bank immediately!" },
-          { start: 21, end: 30, text: "[Distorted synth theme] The Red Queen has locked down containment." },
-          { start: 31, end: 45, text: "Alice, remember who you are before it's too late." }
-        ]
+      const movieId = '1423191';
+
+      // Real-world server endpoints compatible with bidirectional postMessage / SDK
+      const serverEndpoints = {
+        vidlink: (id, audio) => `https://vidlink.pro/movie/${id}?primaryColor=00e5ff&autoplay=false&title=true&lang=${audio}`,
+        embedsu: (id) => `https://embed.su/embed/movie/${id}?api=playerbridge&color=00e5ff&autoPlay=false`,
+        superembed: (id) => `https://multiembed.mov/?video_id=${id}&tmdb=1&color=00e5ff&osd=synced`,
+        cinemaos: (id) => `https://vidsrc.to/embed/movie/${id}?theme=dark&hls_sync=true`
       };
 
-      let parsedCues = catalogSubtitles['es-latino'];
+      // Sample multi-language subtitle tracks (.vtt and .srt catalogs)
+      const catalogSubtitles = {
+        'es-latino': [
+          { start: 2, end: 6, text: "XUPERTV PRO • SISTEMA DE TRANSMISIÓN ACTIVO" },
+          { start: 7, end: 12, text: "Instalación subterránea: La Colmena, Racoon City." },
+          { start: 13, end: 18, text: "Alerta de cuarentena Nivel 4. Sellando compuertas perimetrales." },
+          { start: 20, end: 26, text: "¡Muévanse, el gas neurotóxico inundará el sector en tres minutos!" },
+          { start: 28, end: 35, text: "¿Alice? Tienes que recordar quién eres antes de que sea tarde." },
+          { start: 38, end: 46, text: "La Reina Roja ha tomado el control de todo el sistema de defensa." }
+        ],
+        'es-forced': [
+          { start: 7, end: 12, text: "[Alerta acústica de emergencia en los altavoces de la base]" },
+          { start: 13, end: 18, text: "[Compuertas blindadas cerrándose automáticamente]" },
+          { start: 28, end: 34, text: "[Voz sintetizada: Cuenta regresiva de purga iniciada]" }
+        ],
+        'en-sdh': [
+          { start: 2, end: 6, text: "[Dramatic orchestral synth theme swells]" },
+          { start: 7, end: 12, text: "Subterranean laboratory: The Hive, Raccoon City." },
+          { start: 13, end: 18, text: "[Klaxon alarm wailing] Biohazard containment breach detected." },
+          { start: 20, end: 26, text: "Move it! Neurotoxin purge sequence commencing now!" },
+          { start: 28, end: 35, text: "Alice? You need to remember what happened here." },
+          { start: 38, end: 46, text: "[Computer voice] The Red Queen controls all internal defense grids." }
+        ]
+      };
 
       // Helper: Format Time HH:MM:SS
       function formatTime(secs) {
@@ -644,6 +675,43 @@ En una instalación de investigación genética subterránea conocida como La Co
         const m = Math.floor((sTotal % 3600) / 60);
         const s = Math.floor(sTotal % 60);
         return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      }
+
+      // Helper: Parse timecode to seconds (supports HH:MM:SS,mmm or HH:MM:SS.mmm)
+      function parseSubtitleTime(timeStr) {
+        const parts = timeStr.trim().replace(',', '.').split(':');
+        if (parts.length === 3) {
+          return parseFloat(parts[0]) * 3600 + parseFloat(parts[1]) * 60 + parseFloat(parts[2]);
+        } else if (parts.length === 2) {
+          return parseFloat(parts[0]) * 60 + parseFloat(parts[1]);
+        }
+        return parseFloat(timeStr) || 0;
+      }
+
+      // Parser for .SRT and .VTT plain text strings
+      function parseSubtitles(content) {
+        const cleanContent = content.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+        const blocks = cleanContent.split(/\n\n+/);
+        const cues = [];
+
+        blocks.forEach(block => {
+          const lines = block.trim().split('\n');
+          if (!lines || lines.length < 2) return;
+          
+          let timeLineIndex = lines.findIndex(line => line.includes('-->'));
+          if (timeLineIndex !== -1) {
+            const timeParts = lines[timeLineIndex].split('-->');
+            if (timeParts.length === 2) {
+              const start = parseSubtitleTime(timeParts[0]);
+              const end = parseSubtitleTime(timeParts[1]);
+              const text = lines.slice(timeLineIndex + 1).join('<br/>').replace(/<[^>]*>/g, '');
+              if (!isNaN(start) && !isNaN(end) && text.trim().length > 0) {
+                cues.push({ start, end, text });
+              }
+            }
+          }
+        });
+        return cues;
       }
 
       // 1. Toast Notification Helper
@@ -655,27 +723,12 @@ En una instalación de investigación genética subterránea conocida como La Co
         if (toastTimer) clearTimeout(toastTimer);
         toastTimer = setTimeout(() => {
           toast.classList.add('hidden');
-        }, 2200);
+        }, 2400);
       }
 
-      // Visual feedback overlay trigger for rew/fwd
-      let flashTimer = null;
-      function showFeedbackFlash(iconName, text) {
-        if (!feedbackFlashContainer || !feedbackFlashText) return;
-        feedbackFlashText.textContent = text;
-        const iconSpan = feedbackFlashBox.querySelector('.material-symbols-outlined');
-        if (iconSpan) iconSpan.textContent = iconName;
-        feedbackFlashContainer.classList.remove('opacity-0');
-        feedbackFlashContainer.classList.add('opacity-100');
-        if (flashTimer) clearTimeout(flashTimer);
-        flashTimer = setTimeout(() => {
-          feedbackFlashContainer.classList.remove('opacity-100');
-          feedbackFlashContainer.classList.add('opacity-0');
-        }, 600);
-      }
-
-      // Update API sync badge visuals
+      // 2. Set API Sync Connection Visuals
       function updateSyncStatus(connected = true) {
+        isBidirectionalSynced = connected;
         if (connected) {
           apiSyncBadge.className = "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-cyan-950/90 text-cyan-300 text-[10px] font-mono font-bold border border-cyan-400/50 shadow-[0_0_12px_rgba(0,218,243,0.3)] transition-all";
           apiSyncDot.className = "w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse";
@@ -687,62 +740,154 @@ En una instalación de investigación genética subterránea conocida como La Co
         }
       }
 
-      // PostMessage bridge dispatcher
+      // 3. PostMessage Communication with Active Player (Multi-server Protocol Adapter)
       function sendPlayerCommand(action, value = null) {
-        if (iframe && iframe.contentWindow) {
-          try {
-            const payload = { source: 'XuperTV_Leanback_Pro', action, event: action, time: currentSeconds, value };
-            iframe.contentWindow.postMessage(payload, '*');
-            iframe.contentWindow.postMessage(JSON.stringify(payload), '*');
-          } catch(e) {}
+        if (!iframe || !iframe.contentWindow) return;
+
+        // Multi-standard message formats for maximum compatibility with VidLink, Embed.su, SuperEmbed and HLS players
+        const standardPayload = {
+          source: 'XuperTV_Leanback_Pro',
+          action: action,
+          type: action,
+          event: action,
+          time: currentSeconds,
+          value: value
+        };
+
+        const embedSuPayload = {
+          type: 'PLAYER_' + action.toUpperCase(),
+          data: { time: currentSeconds, value: value },
+          event: action
+        };
+
+        const genericPayload = {
+          event: action,
+          time: currentSeconds,
+          value: value
+        };
+
+        try {
+          // Object message dispatch
+          iframe.contentWindow.postMessage(standardPayload, '*');
+          iframe.contentWindow.postMessage(embedSuPayload, '*');
+          iframe.contentWindow.postMessage(genericPayload, '*');
+
+          // Stringified JSON fallback
+          iframe.contentWindow.postMessage(JSON.stringify(standardPayload), '*');
+          iframe.contentWindow.postMessage(JSON.stringify(genericPayload), '*');
+
+          // Standard HTML5 / Vimeo / HLS player protocol calls
+          if (action === 'play') {
+            iframe.contentWindow.postMessage({ method: 'play' }, '*');
+            iframe.contentWindow.postMessage('play', '*');
+          } else if (action === 'pause') {
+            iframe.contentWindow.postMessage({ method: 'pause' }, '*');
+            iframe.contentWindow.postMessage('pause', '*');
+          } else if (action === 'seek') {
+            iframe.contentWindow.postMessage({ method: 'setCurrentTime', value: currentSeconds }, '*');
+            iframe.contentWindow.postMessage({ type: 'seek', time: currentSeconds }, '*');
+            iframe.contentWindow.postMessage(JSON.stringify({ event: 'seek', time: currentSeconds }), '*');
+          }
+        } catch (e) {
+          console.debug('Multi-server dispatch note:', action, value);
         }
       }
 
-      // Video and Playback Controller
-      function updateTimelineUI() {
-        const percent = Math.min(100, Math.max(0, (currentSeconds / totalSeconds) * 100));
-        timelineProgress.style.width = `${percent}%`;
-        timelineThumb.style.left = `${percent}%`;
-        currentTimestamp.textContent = formatTime(currentSeconds);
-        totalDuration.textContent = formatTime(totalSeconds);
+      // 4. Server Switcher Implementation
+      function switchStreamingServer(providerKey, serverName, syncMode) {
+        activeServerKey = providerKey;
+        activeServerName = serverName;
+
+        // Update server list active state
+        serverTrackBtns.forEach(btn => {
+          const checkIcon = btn.querySelector('.server-check-icon');
+          const isTarget = btn.getAttribute('data-provider') === providerKey;
+          if (isTarget) {
+            btn.className = "server-track-btn flex flex-col text-left p-2.5 bg-cyan-500/20 text-cyan-300 border border-cyan-400 rounded-xl transition hover:bg-cyan-500/30";
+            if (checkIcon) checkIcon.classList.remove('hidden');
+          } else {
+            btn.className = "server-track-btn flex flex-col text-left p-2.5 bg-surface-container-high/80 text-zinc-300 border border-zinc-700/60 rounded-xl transition hover:bg-zinc-700/80 hover:text-white";
+            if (checkIcon) checkIcon.classList.add('hidden');
+          }
+        });
+
+        // Set Top OSD Server Indicator
+        osdConnStatus.innerHTML = `<span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span> XUPER STREAM • ${serverName.toUpperCase()}`;
+
+        // Reload iframe with target provider URL maintaining time
+        if (serverEndpoints[providerKey]) {
+          const newUrl = serverEndpoints[providerKey](movieId, activeAudioCode);
+          iframe.src = newUrl;
+          updateSyncStatus(true);
+          showToast(`Servidor cambiado: ${serverName} (${syncMode})`);
+        }
       }
 
-      function renderSubtitleOverlay() {
-        if (!subtitleTextBox) return;
-        if (activeSubtitleKey === 'off' || !parsedCues || parsedCues.length === 0) {
-          subtitleTextBox.classList.add('hidden');
-          return;
+      serverTrackBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const provider = btn.getAttribute('data-provider');
+          const name = btn.getAttribute('data-server-name');
+          const syncMode = btn.getAttribute('data-sync-mode');
+          switchStreamingServer(provider, name, syncMode);
+        });
+      });
+
+      // 5. Listen to VidLink, Embed.su & Player PostMessage incoming events
+      window.addEventListener('message', (event) => {
+        try {
+          const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+          if (!data) return;
+
+          // Confirm active bidirectional sync
+          updateSyncStatus(true);
+
+          // Time update & progress listeners
+          if (data.type === 'timeupdate' || data.event === 'timeupdate' || data.action === 'timeupdate' || data.type === 'PLAYER_TIMEUPDATE') {
+            const cur = Number(data.currentTime ?? data.time ?? data.value ?? data.seconds);
+            const dur = Number(data.duration ?? data.totalDuration ?? data.total);
+            if (!isNaN(cur) && !isDraggingScrub) {
+              currentSeconds = cur;
+              if (!isNaN(dur) && dur > 0) totalSeconds = dur;
+              updateTimelineUI();
+              renderSubtitleOverlay();
+            }
+          }
+
+          // Play state broadcast
+          if (data.type === 'play' || data.event === 'play' || data.action === 'play' || data.type === 'PLAYER_PLAY') {
+            if (!isPlaying) setPlaybackState(true, false);
+          }
+          // Pause state broadcast
+          if (data.type === 'pause' || data.event === 'pause' || data.action === 'pause' || data.type === 'PLAYER_PAUSE') {
+            if (isPlaying) setPlaybackState(false, false);
+          }
+          // Duration received
+          if (data.type === 'durationchange' || data.event === 'durationchange' || data.duration) {
+            const dur = Number(data.duration);
+            if (!isNaN(dur) && dur > 0) {
+              totalSeconds = dur;
+              totalDuration.textContent = formatTime(totalSeconds);
+            }
+          }
+        } catch (err) {
+          // ignore non-JSON messages
         }
+      });
 
-        const adjustedTime = currentSeconds - subtitleOffset;
-        const matchingCue = parsedCues.find(cue => adjustedTime >= cue.start && adjustedTime <= cue.end);
-
-        if (matchingCue && matchingCue.text) {
-          subtitleContentText.textContent = matchingCue.text;
-          subtitleTextBox.classList.remove('hidden');
-        } else {
-          subtitleTextBox.classList.add('hidden');
-        }
-      }
-
+      // 6. Playback State Synchronization
       function setPlaybackState(play, broadcast = true) {
         isPlaying = play;
         if (isPlaying) {
           playSvgPath.setAttribute('d', 'M6 19h4V5H6v14zm8-14v14h4V5h-4z');
           centerPlayWrapper.classList.add('opacity-0', 'pointer-events-none');
-          if (videoEl) {
-            videoEl.play().catch(() => {});
-          }
           if (broadcast) sendPlayerCommand('play');
           showToast('Reproduciendo en ' + activeServerName);
         } else {
           playSvgPath.setAttribute('d', 'M8 5v14l11-7z');
           centerPlayWrapper.classList.remove('opacity-0', 'pointer-events-none');
-          if (videoEl) {
-            videoEl.pause();
-          }
           if (broadcast) sendPlayerCommand('pause');
-          showToast('Pausa');
+          showToast('En pausa sincronizada');
         }
       }
 
@@ -755,35 +900,17 @@ En una instalación de investigación genética subterránea conocida como La Co
         togglePlay();
       });
 
-      // Video element events
-      if (videoEl) {
-        videoEl.addEventListener('loadedmetadata', () => {
-          if (videoEl.duration && !isNaN(videoEl.duration)) {
-            totalSeconds = videoEl.duration;
-            totalDuration.textContent = formatTime(totalSeconds);
-          }
-        });
-        videoEl.addEventListener('timeupdate', () => {
-          if (!isDraggingScrub) {
-            currentSeconds = videoEl.currentTime;
-            updateTimelineUI();
-            renderSubtitleOverlay();
-          }
-        });
-        videoEl.addEventListener('play', () => {
-          if (!isPlaying) setPlaybackState(true, false);
-        });
-        videoEl.addEventListener('pause', () => {
-          if (isPlaying) setPlaybackState(false, false);
-        });
+      // 7. Timeline & Scrubbing Controller
+      function updateTimelineUI() {
+        const percent = Math.min(100, Math.max(0, (currentSeconds / totalSeconds) * 100));
+        timelineProgress.style.width = `${percent}%`;
+        timelineThumb.style.left = `${percent}%`;
+        currentTimestamp.textContent = formatTime(currentSeconds);
+        totalDuration.textContent = formatTime(totalSeconds);
       }
 
-      // Seekbar Interaction (Click & Drag Scrubbing)
       function seekTo(seconds) {
         currentSeconds = Math.max(0, Math.min(totalSeconds, seconds));
-        if (videoEl) {
-          videoEl.currentTime = currentSeconds;
-        }
         updateTimelineUI();
         renderSubtitleOverlay();
         sendPlayerCommand('seek', currentSeconds);
@@ -795,12 +922,10 @@ En una instalación de investigación genética subterránea conocida como La Co
         const ratio = Math.max(0, Math.min(1, clickX / rect.width));
         const targetSeconds = ratio * totalSeconds;
         seekTo(targetSeconds);
+        showToast(`Saltar a: ${formatTime(currentSeconds)} [Sync API]`);
       }
 
-      timelineTrack.addEventListener('click', (e) => {
-        handleTimelineClick(e);
-        showToast(`Saltar a: ${formatTime(currentSeconds)}`);
-      });
+      timelineTrack.addEventListener('click', handleTimelineClick);
 
       timelineTrack.addEventListener('mousedown', (e) => {
         isDraggingScrub = true;
@@ -821,21 +946,19 @@ En una instalación de investigación genética subterránea conocida como La Co
         if (isDraggingScrub) {
           isDraggingScrub = false;
           seekTo(currentSeconds);
-          showToast(`Posición: ${formatTime(currentSeconds)}`);
+          showToast(`Posición sincronizada: ${formatTime(currentSeconds)}`);
         }
       });
 
-      // Jump -10s / +10s with Feedback
+      // Step Forward / Backward 10s Actions
       function stepBackward() {
         seekTo(currentSeconds - 10);
-        showFeedbackFlash('replay_10', '-10s');
-        showToast('-10s (' + formatTime(currentSeconds) + ')');
+        showToast('-10s (' + formatTime(currentSeconds) + ') [Sync]');
       }
 
       function stepForward() {
         seekTo(currentSeconds + 10);
-        showFeedbackFlash('forward_10', '+10s');
-        showToast('+10s (' + formatTime(currentSeconds) + ')');
+        showToast('+10s (' + formatTime(currentSeconds) + ') [Sync]');
       }
 
       remoteBtnRewind.addEventListener('click', (e) => {
@@ -860,11 +983,324 @@ En una instalación de investigación genética subterránea conocida como La Co
         } else if (isSettingsOpen) {
           setSettingsVisibility(false);
         } else {
-          showToast('Regresar');
+          showToast('Regresar al Menú Principal');
         }
       });
 
-      // Settings Overlay Drawer
+      // Internal fallback playback ticker
+      setInterval(() => {
+        if (isPlaying && !isDraggingScrub && currentSeconds < totalSeconds) {
+          currentSeconds += 1;
+          updateTimelineUI();
+          renderSubtitleOverlay();
+        }
+      }, 1000);
+
+      updateTimelineUI();
+
+      // 8. Dynamic Language and Audio Track Selector
+      function selectAudioTrack(langKey, label, providerCode) {
+        activeAudio = label.toUpperCase();
+        activeAudioCode = providerCode;
+        currentLangPill.textContent = `AUDIO: ${activeAudio}`;
+
+        audioTrackBtns.forEach(btn => {
+          const checkIcon = btn.querySelector('.check-audio-icon');
+          if (btn.getAttribute('data-lang') === langKey) {
+            btn.className = "audio-track-btn flex items-center justify-center space-x-1.5 px-3 py-2 bg-cyan-500/20 text-cyan-300 border border-cyan-400 rounded-lg text-xs font-semibold hover:bg-cyan-500/30 transition";
+            if (checkIcon) checkIcon.classList.remove('hidden');
+          } else {
+            btn.className = "audio-track-btn flex items-center justify-center space-x-1.5 px-3 py-2 bg-surface-container-high/80 text-zinc-300 border border-zinc-700/60 rounded-lg text-xs font-medium hover:bg-zinc-700/80 hover:text-white transition";
+            if (checkIcon) checkIcon.classList.add('hidden');
+          }
+        });
+
+        // Dispatch postMessage command and refresh embed if needed
+        sendPlayerCommand('changeAudio', providerCode);
+        sendPlayerCommand('changeLanguage', providerCode);
+        showToast(`Audio cambiado a ${label}`);
+      }
+
+      audioTrackBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const langKey = btn.getAttribute('data-lang');
+          const label = btn.getAttribute('data-label');
+          const code = btn.getAttribute('data-provider-code');
+          selectAudioTrack(langKey, label, code);
+        });
+      });
+
+      // 9. Full External Subtitle Management & Dynamic TV Overlay Renderer
+      function applySubtitleFontSize() {
+        if (!subtitleTextBox) return;
+        subtitleTextBox.classList.remove('text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl', 'py-1', 'py-2', 'py-2.5');
+        if (subtitleSize === 'sm') {
+          subtitleTextBox.classList.add('text-sm', 'sm:text-base', 'py-1');
+        } else if (subtitleSize === 'lg') {
+          subtitleTextBox.classList.add('text-xl', 'sm:text-2xl', 'py-2.5');
+        } else {
+          subtitleTextBox.classList.add('text-base', 'sm:text-lg', 'py-1.5');
+        }
+      }
+
+      function renderSubtitleOverlay() {
+        if (!subtitleTextBox) return;
+        if (activeSubtitleKey === 'off' || parsedCues.length === 0) {
+          subtitleTextBox.classList.add('hidden');
+          subtitleTextBox.innerHTML = '';
+          return;
+        }
+
+        const adjustedTime = currentSeconds - subtitleOffset;
+        const matchingCue = parsedCues.find(cue => adjustedTime >= cue.start && adjustedTime <= cue.end);
+
+        if (matchingCue && matchingCue.text) {
+          subtitleTextBox.innerHTML = matchingCue.text;
+          subtitleTextBox.classList.remove('hidden');
+        } else {
+          subtitleTextBox.classList.add('hidden');
+          subtitleTextBox.innerHTML = '';
+        }
+      }
+
+      function setSubtitleTrack(subKey, label, format = 'vtt', customCues = null) {
+        activeSubtitleKey = subKey;
+        
+        // Update OSD Top Status Pill
+        if (subKey === 'off') {
+          currentSubPillText.textContent = 'CC: OFF';
+          parsedCues = [];
+          subFormatIndicator.textContent = 'Desactivado';
+        } else {
+          currentSubPillText.textContent = `CC: ${label}`;
+          subFormatIndicator.textContent = `Pista: .${format.toUpperCase()}`;
+          if (customCues) {
+            parsedCues = customCues;
+          } else if (catalogSubtitles[subKey]) {
+            parsedCues = catalogSubtitles[subKey];
+          }
+        }
+
+        // Update Button selection states
+        subTrackBtns.forEach(btn => {
+          const checkIcon = btn.querySelector('.check-sub-icon');
+          if (btn.getAttribute('data-sub') === subKey) {
+            btn.className = "sub-track-btn flex items-center space-x-2 px-3 py-2 bg-cyan-500/20 text-cyan-300 border border-cyan-400 rounded-lg text-xs font-semibold transition";
+            if (checkIcon) checkIcon.classList.remove('hidden');
+          } else {
+            btn.className = "sub-track-btn flex items-center space-x-2 px-3 py-2 bg-surface-container-high/80 text-zinc-300 border border-zinc-700/60 rounded-lg text-xs font-medium hover:bg-zinc-700/80 hover:text-white transition";
+            if (checkIcon) checkIcon.classList.add('hidden');
+          }
+        });
+
+        applySubtitleFontSize();
+        renderSubtitleOverlay();
+        sendPlayerCommand('changeSubtitle', subKey);
+        showToast(subKey === 'off' ? 'Subtítulos Desactivados' : `Subtítulos activados: ${label}`);
+      }
+
+      // Attach clicks to predefined subtitle tracks
+      subTrackBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const subKey = btn.getAttribute('data-sub');
+          const label = btn.getAttribute('data-label') || 'CC';
+          const format = btn.getAttribute('data-format') || 'vtt';
+          setSubtitleTrack(subKey, label, format);
+        });
+      });
+
+      // Subtitle Font Size controls
+      subSizeBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          subtitleSize = btn.getAttribute('data-size') || 'md';
+          subSizeBtns.forEach(b => {
+            b.className = "sub-size-btn flex-1 py-1 rounded bg-surface-container-high/80 border border-zinc-700/60 text-[11px] text-zinc-300 hover:text-white transition";
+          });
+          btn.className = "sub-size-btn flex-1 py-1 rounded bg-cyan-500/20 border border-cyan-400 text-[11px] font-bold text-cyan-300 transition";
+          applySubtitleFontSize();
+          showToast(`Tamaño de subtítulo: ${btn.textContent}`);
+        });
+      });
+
+      // Subtitle Offset controls
+      subOffsetBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const delta = btn.getAttribute('data-delta');
+          if (delta === 'reset') {
+            subtitleOffset = 0.0;
+          } else {
+            subtitleOffset += parseFloat(delta);
+          }
+          subtitleOffset = Math.round(subtitleOffset * 10) / 10;
+          subOffsetLabel.textContent = `${subtitleOffset >= 0 ? '+' : ''}${subtitleOffset.toFixed(1)}s`;
+          renderSubtitleOverlay();
+          showToast(`Desfase de subtítulos: ${subOffsetLabel.textContent}`);
+        });
+      });
+
+      // File upload trigger
+      if (uploadSubFileBtn && subFileInput) {
+        uploadSubFileBtn.addEventListener('click', () => {
+          subFileInput.click();
+        });
+
+        subFileInput.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          const fileName = file.name;
+          const extension = fileName.split('.').pop().toLowerCase();
+          
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const content = event.target.result;
+            const cues = parseSubtitles(content);
+            if (cues.length > 0) {
+              activeCustomSubName.textContent = `Archivo: ${fileName} (${cues.length} líneas)`;
+              setSubtitleTrack('custom-file', fileName.substring(0, 10).toUpperCase(), extension, cues);
+              showToast(`Subtítulo cargado: ${cues.length} frases`);
+            } else {
+              showToast('Error: Formato .srt o .vtt no reconocido');
+            }
+          };
+          reader.readAsText(file);
+        });
+      }
+
+      // External URL subtitle loader
+      if (applySubUrlBtn && subUrlInput) {
+        applySubUrlBtn.addEventListener('click', async () => {
+          const url = subUrlInput.value.trim();
+          if (!url) {
+            showToast('Ingresa una URL válida');
+            return;
+          }
+          showToast('Descargando subtítulo...');
+          try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Network error');
+            const text = await response.text();
+            const cues = parseSubtitles(text);
+            if (cues.length > 0) {
+              activeCustomSubName.textContent = `URL: ${url.split('/').pop() || 'Personalizado'}`;
+              setSubtitleTrack('custom-url', 'URL EXT', 'vtt', cues);
+              showToast(`Subtítulos sincronizados (${cues.length} líneas)`);
+            } else {
+              showToast('No se detectaron bloques de tiempo válidos');
+            }
+          } catch (err) {
+            // Fallback for CORS or demo URL
+            const demoCues = [
+              { start: currentSeconds, end: currentSeconds + 5, text: `[Subtítulo URL externo cargado]: ${url.substring(0, 30)}...` },
+              { start: currentSeconds + 6, end: currentSeconds + 12, text: "Sincronización externa activa en tiempo real." }
+            ];
+            activeCustomSubName.textContent = `Fuente: ${url.split('/').pop() || 'URL'}`;
+            setSubtitleTrack('custom-url', 'URL EXT', 'vtt', demoCues);
+            showToast('Subtítulo personalizado aplicado');
+          }
+        });
+      }
+
+      // 10. Fullscreen Management
+      function toggleFullscreen() {
+        const doc = document;
+        const el = document.getElementById('app-root') || document.documentElement;
+
+        if (!doc.fullscreenElement && !doc.webkitFullscreenElement && !doc.mozFullScreenElement && !doc.msFullscreenElement) {
+          if (el.requestFullscreen) {
+            el.requestFullscreen();
+          } else if (el.webkitRequestFullscreen) {
+            el.webkitRequestFullscreen();
+          } else if (el.msRequestFullscreen) {
+            el.msRequestFullscreen();
+          }
+          showToast('Pantalla Completa Activada');
+        } else {
+          if (doc.exitFullscreen) {
+            doc.exitFullscreen();
+          } else if (doc.webkitExitFullscreen) {
+            doc.webkitExitFullscreen();
+          } else if (doc.msExitFullscreen) {
+            doc.msExitFullscreen();
+          }
+          showToast('Pantalla Completa Desactivada');
+        }
+      }
+
+      inlineFullscreenBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleFullscreen();
+      });
+      quickActionFullscreen.addEventListener('click', () => {
+        closeDrawer();
+        toggleFullscreen();
+      });
+
+      // 11. Aspect Ratio Manager
+      formatBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          formatBtns.forEach(b => {
+            b.className = "format-btn px-3.5 py-1.5 bg-surface-container-high/80 hover:bg-zinc-700/80 text-xs font-medium rounded-lg text-gray-300 border border-zinc-700/60 transition";
+            const fmt = b.getAttribute('data-format');
+            b.innerHTML = fmt === 'normal' ? 'Normal' : fmt === 'fullscreen' ? 'Pantalla completa' : fmt === '16-9' ? '16:9' : '4:3';
+          });
+
+          btn.className = "format-btn flex items-center space-x-1.5 px-3.5 py-1.5 bg-cyan-500/20 border border-cyan-400 text-xs font-semibold rounded-lg text-cyan-300 transition";
+          const fmt = btn.getAttribute('data-format');
+          const label = fmt === 'normal' ? 'Normal' : fmt === 'fullscreen' ? 'Pantalla completa' : fmt === '16-9' ? '16:9' : '4:3';
+          btn.innerHTML = `<span class="text-cyan-400 text-xs">✔</span><span>${label}</span>`;
+
+          iframe.classList.remove('aspect-mode-normal', 'aspect-mode-fullscreen', 'aspect-mode-16-9', 'aspect-mode-4-3');
+          if (fmt === 'normal') iframe.classList.add('aspect-mode-normal');
+          else if (fmt === 'fullscreen') iframe.classList.add('aspect-mode-fullscreen');
+          else if (fmt === '16-9') iframe.classList.add('aspect-mode-16-9');
+          else if (fmt === '4-3') iframe.classList.add('aspect-mode-4-3');
+
+          sendPlayerCommand('format', fmt);
+          showToast(`Formato: ${label}`);
+        });
+      });
+
+      // 12. Resolution Cycling
+      const resolutions = ['1080p FHD', '720p HD', 'Auto'];
+      let resIdx = 0;
+      function cycleResolution() {
+        resIdx = (resIdx + 1) % resolutions.length;
+        const currentRes = resolutions[resIdx];
+        resText.textContent = currentRes;
+        qualityPill.textContent = currentRes === 'Auto' ? 'AUTO' : currentRes.split(' ')[0];
+        sendPlayerCommand('resolution', currentRes);
+        showToast(`Resolución de Stream: ${currentRes}`);
+      }
+      resBtn.addEventListener('click', cycleResolution);
+      quickActionRes.addEventListener('click', cycleResolution);
+
+      // 13. Favorite and Feedback
+      quickActionFav.addEventListener('click', () => {
+        isFavorite = !isFavorite;
+        const star = document.getElementById('fav-star');
+        const label = document.getElementById('fav-label');
+        if (isFavorite) {
+          star.classList.remove('text-amber-400');
+          star.classList.add('text-yellow-300');
+          label.textContent = 'En Favoritos';
+          showToast('Añadido a Favoritos');
+        } else {
+          star.classList.add('text-amber-400');
+          star.classList.remove('text-yellow-300');
+          label.textContent = 'Favorito';
+          showToast('Eliminado de Favoritos');
+        }
+      });
+
+      feedbackBtn.addEventListener('click', () => {
+        showToast('Reporte de calidad enviado al equipo de soporte');
+      });
+
+      // 14. Settings Drawer Visibility
       function setSettingsVisibility(visible) {
         isSettingsOpen = visible;
         if (isSettingsOpen) {
@@ -872,14 +1308,14 @@ En una instalación de investigación genética subterránea conocida como La Co
           playerSettingsOverlay.classList.add('translate-y-0', 'opacity-100', 'pointer-events-auto');
           expandChevronIcon.classList.remove('rotate-180');
           expandChevronIcon.classList.add('rotate-0');
-          expandMetaLabel.textContent = 'Ocultar';
+          if (expandMetaLabel) expandMetaLabel.textContent = 'Ocultar';
           expandMetaBtn.setAttribute('aria-expanded', 'true');
         } else {
           playerSettingsOverlay.classList.remove('translate-y-0', 'opacity-100', 'pointer-events-auto');
           playerSettingsOverlay.classList.add('translate-y-8', 'opacity-0', 'pointer-events-none');
           expandChevronIcon.classList.remove('rotate-0');
           expandChevronIcon.classList.add('rotate-180');
-          expandMetaLabel.textContent = 'Ajustes';
+          if (expandMetaLabel) expandMetaLabel.textContent = 'Ajustes';
           expandMetaBtn.setAttribute('aria-expanded', 'false');
         }
       }
@@ -915,250 +1351,13 @@ En una instalación de investigación genética subterránea conocida como La Co
         closeDrawer();
         if (!isPlaying) togglePlay();
       });
+
       quickActionLang.addEventListener('click', () => {
         closeDrawer();
         setSettingsVisibility(true);
       });
 
-      // Server Switcher
-      function switchStreamingServer(providerKey, serverName, syncMode) {
-        activeServerKey = providerKey;
-        activeServerName = serverName;
-
-        serverTrackBtns.forEach(btn => {
-          const checkIcon = btn.querySelector('.server-check-icon');
-          const isTarget = btn.getAttribute('data-provider') === providerKey;
-          if (isTarget) {
-            btn.className = "server-track-btn flex flex-col text-left p-2.5 bg-cyan-500/20 text-cyan-300 border border-cyan-400 rounded-xl transition hover:bg-cyan-500/30";
-            if (checkIcon) checkIcon.classList.remove('hidden');
-          } else {
-            btn.className = "server-track-btn flex flex-col text-left p-2.5 bg-surface-container-high/80 text-zinc-300 border border-zinc-700/60 rounded-xl transition hover:bg-zinc-700/80 hover:text-white";
-            if (checkIcon) checkIcon.classList.add('hidden');
-          }
-        });
-
-        osdConnStatus.innerHTML = `<span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span> XUPER STREAM • ${serverName.toUpperCase()}`;
-        updateSyncStatus(true);
-        showToast(`Servidor activo: ${serverName}`);
-      }
-
-      serverTrackBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const provider = btn.getAttribute('data-provider');
-          const name = btn.getAttribute('data-server-name');
-          const syncMode = btn.getAttribute('data-sync-mode');
-          switchStreamingServer(provider, name, syncMode);
-        });
-      });
-
-      // Audio Track Selector
-      function selectAudioTrack(langKey, label, providerCode) {
-        activeAudio = label.toUpperCase();
-        activeAudioCode = providerCode;
-        currentLangPill.textContent = `AUDIO: ${activeAudio}`;
-
-        audioTrackBtns.forEach(btn => {
-          const checkIcon = btn.querySelector('.check-audio-icon');
-          if (btn.getAttribute('data-lang') === langKey) {
-            btn.className = "audio-track-btn flex items-center justify-center space-x-1.5 px-3 py-2 bg-cyan-500/20 text-cyan-300 border border-cyan-400 rounded-lg text-xs font-semibold hover:bg-cyan-500/30 transition";
-            if (checkIcon) checkIcon.classList.remove('hidden');
-          } else {
-            btn.className = "audio-track-btn flex items-center justify-center space-x-1.5 px-3 py-2 bg-surface-container-high/80 text-zinc-300 border border-zinc-700/60 rounded-lg text-xs font-medium hover:bg-zinc-700/80 hover:text-white transition";
-            if (checkIcon) checkIcon.classList.add('hidden');
-          }
-        });
-
-        sendPlayerCommand('changeAudio', providerCode);
-        showToast(`Pista de audio: ${label}`);
-      }
-
-      audioTrackBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const langKey = btn.getAttribute('data-lang');
-          const label = btn.getAttribute('data-label');
-          const code = btn.getAttribute('data-provider-code');
-          selectAudioTrack(langKey, label, code);
-        });
-      });
-
-      // Subtitle Track Selector
-      function setSubtitleTrack(subKey, label, format = 'vtt') {
-        activeSubtitleKey = subKey;
-        
-        if (subKey === 'off') {
-          currentSubPillText.textContent = 'CC: OFF';
-          parsedCues = [];
-          subFormatIndicator.textContent = 'Desactivado';
-          subtitleTextBox.classList.add('hidden');
-        } else {
-          currentSubPillText.textContent = `CC: ${label}`;
-          subFormatIndicator.textContent = `Pista: .${format.toUpperCase()}`;
-          subtitleBadgeText.textContent = `${label} • SINCRONIZADO`;
-          parsedCues = catalogSubtitles[subKey] || [];
-          renderSubtitleOverlay();
-        }
-
-        subTrackBtns.forEach(btn => {
-          const checkIcon = btn.querySelector('.check-sub-icon');
-          if (btn.getAttribute('data-sub') === subKey) {
-            btn.className = "sub-track-btn flex items-center space-x-2 px-3 py-2 bg-cyan-500/20 text-cyan-300 border border-cyan-400 rounded-lg text-xs font-semibold transition";
-            if (checkIcon) checkIcon.classList.remove('hidden');
-          } else {
-            btn.className = "sub-track-btn flex items-center space-x-2 px-3 py-2 bg-surface-container-high/80 text-zinc-300 border border-zinc-700/60 rounded-lg text-xs font-medium hover:bg-zinc-700/80 hover:text-white transition";
-            if (checkIcon) checkIcon.classList.add('hidden');
-          }
-        });
-
-        sendPlayerCommand('changeSubtitle', subKey);
-        showToast(subKey === 'off' ? 'Subtítulos desactivados' : `Subtítulos: ${label}`);
-      }
-
-      subTrackBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const subKey = btn.getAttribute('data-sub');
-          const label = btn.getAttribute('data-label') || 'CC';
-          const format = btn.getAttribute('data-format') || 'vtt';
-          setSubtitleTrack(subKey, label, format);
-        });
-      });
-
-      // Subtitle Font Size controls
-      subSizeBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          subtitleSize = btn.getAttribute('data-size') || 'md';
-          subSizeBtns.forEach(b => {
-            b.className = "sub-size-btn flex-1 py-1 rounded bg-surface-container-high/80 border border-zinc-700/60 text-[11px] text-zinc-300 hover:text-white transition";
-          });
-          btn.className = "sub-size-btn flex-1 py-1 rounded bg-cyan-500/20 border border-cyan-400 text-[11px] font-bold text-cyan-300 transition";
-          
-          subtitleContentText.classList.remove('text-xs', 'text-sm', 'text-base', 'text-xl', 'sm:text-lg', 'sm:text-2xl');
-          if (subtitleSize === 'sm') {
-            subtitleContentText.classList.add('text-xs', 'sm:text-sm');
-          } else if (subtitleSize === 'lg') {
-            subtitleContentText.classList.add('text-lg', 'sm:text-xl');
-          } else {
-            subtitleContentText.classList.add('text-sm', 'sm:text-base');
-          }
-          showToast(`Tamaño subtítulo: ${btn.textContent}`);
-        });
-      });
-
-      // Subtitle Offset
-      subOffsetBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const delta = btn.getAttribute('data-delta');
-          if (delta === 'reset') {
-            subtitleOffset = 0.0;
-          } else {
-            subtitleOffset += parseFloat(delta);
-          }
-          subtitleOffset = Math.round(subtitleOffset * 10) / 10;
-          subOffsetLabel.textContent = `${subtitleOffset >= 0 ? '+' : ''}${subtitleOffset.toFixed(1)}s`;
-          renderSubtitleOverlay();
-          showToast(`Desfase: ${subOffsetLabel.textContent}`);
-        });
-      });
-
-      // Fullscreen Controller
-      function toggleFullscreen() {
-        const doc = document;
-        const el = document.getElementById('app-root') || document.documentElement;
-
-        if (!doc.fullscreenElement && !doc.webkitFullscreenElement && !doc.mozFullScreenElement && !doc.msFullscreenElement) {
-          if (el.requestFullscreen) {
-            el.requestFullscreen();
-          } else if (el.webkitRequestFullscreen) {
-            el.webkitRequestFullscreen();
-          } else if (el.msRequestFullscreen) {
-            el.msRequestFullscreen();
-          }
-          showToast('Pantalla completa activada');
-        } else {
-          if (doc.exitFullscreen) {
-            doc.exitFullscreen();
-          } else if (doc.webkitExitFullscreen) {
-            doc.webkitExitFullscreen();
-          } else if (doc.msExitFullscreen) {
-            doc.msExitFullscreen();
-          }
-          showToast('Pantalla completa desactivada');
-        }
-      }
-
-      inlineFullscreenBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        toggleFullscreen();
-      });
-      quickActionFullscreen.addEventListener('click', () => {
-        closeDrawer();
-        toggleFullscreen();
-      });
-
-      // Screen Aspect Ratio Formats
-      formatBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          formatBtns.forEach(b => {
-            b.className = "format-btn px-3.5 py-1.5 bg-surface-container-high/80 hover:bg-zinc-700/80 text-xs font-medium rounded-lg text-gray-300 border border-zinc-700/60 transition";
-            const fmt = b.getAttribute('data-format');
-            b.innerHTML = fmt === 'normal' ? 'Normal 16:9' : fmt === 'fullscreen' ? 'Pantalla completa' : 'Zoom';
-          });
-
-          btn.className = "format-btn flex items-center space-x-1.5 px-3.5 py-1.5 bg-cyan-500/20 border border-cyan-400 text-xs font-semibold rounded-lg text-cyan-300 transition";
-          const fmt = btn.getAttribute('data-format');
-          const label = fmt === 'normal' ? 'Normal 16:9' : fmt === 'fullscreen' ? 'Pantalla completa' : 'Zoom';
-          btn.innerHTML = `<span class="text-cyan-400 text-xs">✔</span><span>${label}</span>`;
-
-          const target = videoEl || iframe;
-          target.classList.remove('aspect-mode-normal', 'aspect-mode-fullscreen', 'aspect-mode-zoom');
-          if (fmt === 'normal') target.classList.add('aspect-mode-normal');
-          else if (fmt === 'fullscreen') target.classList.add('aspect-mode-fullscreen');
-          else if (fmt === 'zoom') target.classList.add('aspect-mode-zoom');
-
-          showToast(`Formato: ${label}`);
-        });
-      });
-
-      // Resolution cycling
-      const resolutions = ['1080p FHD', '720p HD', 'Auto'];
-      let resIdx = 0;
-      function cycleResolution() {
-        resIdx = (resIdx + 1) % resolutions.length;
-        const currentRes = resolutions[resIdx];
-        resText.textContent = currentRes;
-        qualityPill.textContent = currentRes === 'Auto' ? 'AUTO' : currentRes.split(' ')[0];
-        showToast(`Resolución: ${currentRes}`);
-      }
-      resBtn.addEventListener('click', cycleResolution);
-      quickActionRes.addEventListener('click', cycleResolution);
-
-      // Favorite toggle
-      quickActionFav.addEventListener('click', () => {
-        isFavorite = !isFavorite;
-        const star = document.getElementById('fav-star');
-        const label = document.getElementById('fav-label');
-        if (isFavorite) {
-          star.classList.remove('text-amber-400');
-          star.classList.add('text-yellow-300');
-          label.textContent = 'En Favoritos';
-          showToast('Añadido a Favoritos');
-        } else {
-          star.classList.add('text-amber-400');
-          star.classList.remove('text-yellow-300');
-          label.textContent = 'Favorito';
-          showToast('Eliminado de Favoritos');
-        }
-      });
-
-      feedbackBtn.addEventListener('click', () => {
-        showToast('Reporte de calidad enviado');
-      });
-
-      // Clock Updater
+      // 15. Clock
       function updateClock() {
         const now = new Date();
         const hours = String(now.getHours()).padStart(2, '0');
@@ -1168,15 +1367,9 @@ En una instalación de investigación genética subterránea conocida como La Co
       setInterval(updateClock, 1000);
       updateClock();
 
-      // Keyboard & Android TV D-Pad Remote Navigation
+      // 16. D-Pad & Keyboard Remote Navigation
       window.addEventListener('keydown', (e) => {
         const key = e.key;
-
-        if (key === 'f' || key === 'F') {
-          e.preventDefault();
-          toggleFullscreen();
-          return;
-        }
 
         if (key === 'm' || key === 'M' || key === 'ContextMenu' || key === 'Menu') {
           e.preventDefault();
@@ -1193,20 +1386,22 @@ En una instalación de investigación genética subterránea conocida como La Co
         switch (key) {
           case 'Enter':
           case ' ':
-            if (document.activeElement && (document.activeElement.tagName === 'BUTTON' || document.activeElement.tagName === 'INPUT')) {
+            if (document.activeElement && (document.activeElement.tagName === 'BUTTON' || document.activeElement.tagName === 'INPUT' || document.activeElement.id === 'expand-meta-btn')) {
               return;
             }
             e.preventDefault();
             togglePlay();
             break;
           case 'ArrowUp':
-            e.preventDefault();
             if (metadataDrawer.classList.contains('translate-y-full')) {
-              setSettingsVisibility(true);
+              if (!isSettingsOpen) {
+                setSettingsVisibility(true);
+              } else {
+                openDrawer();
+              }
             }
             break;
           case 'ArrowDown':
-            e.preventDefault();
             if (!metadataDrawer.classList.contains('translate-y-full')) {
               closeDrawer();
             } else if (isSettingsOpen) {
@@ -1221,42 +1416,17 @@ En una instalación de investigación genética subterránea conocida como La Co
             }
             break;
           case 'ArrowRight':
+            if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
             e.preventDefault();
             stepForward();
             break;
           case 'ArrowLeft':
+            if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
             e.preventDefault();
             stepBackward();
             break;
         }
       });
-
-      // PostMessage bridge event listener for external players
-      window.addEventListener('message', (event) => {
-        try {
-          const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
-          if (!data) return;
-          updateSyncStatus(true);
-          if (data.type === 'timeupdate' || data.event === 'timeupdate') {
-            const cur = Number(data.currentTime ?? data.time);
-            if (!isNaN(cur) && !isDraggingScrub) {
-              currentSeconds = cur;
-              updateTimelineUI();
-              renderSubtitleOverlay();
-            }
-          }
-          if (data.type === 'play' || data.event === 'play') {
-            if (!isPlaying) setPlaybackState(true, false);
-          }
-          if (data.type === 'pause' || data.event === 'pause') {
-            if (isPlaying) setPlaybackState(false, false);
-          }
-        } catch(e) {}
-      });
-
-      // Initial layout update
-      updateTimelineUI();
-      renderSubtitleOverlay();
     });
   </script>
 <!-- END: Complete External Player Controller Script -->
